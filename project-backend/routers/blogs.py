@@ -8,4 +8,6 @@ router = APIRouter()
 
 @router.get("/blogs")
 def get_all_blogs(db: Session = Depends(get_db)):
-  return {"yes": "ok"}
+  all_blogs = db.query(models.blogs).all()
+  print(all_blogs)
+  return{"all blogs": "a sample"}
