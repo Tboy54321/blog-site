@@ -1,0 +1,7 @@
+__pycache__/
+
+/main/myenv/
+
+pyproject.toml
+
+.env

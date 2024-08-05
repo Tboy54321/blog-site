@@ -30,10 +30,10 @@ def verify_access_token(token: str, credentials_exception, db: Session):
     try:
 
         # blacklisted_token = db.query(models.TokenBlacklist).filter(models.TokenBlacklist.token).first()
-        blacklisted_token = db.query(models.TokenBlacklist).filter(models.TokenBlacklist.token == token).first()
+        # blacklisted_token = db.query(models.TokenBlacklist).filter(models.TokenBlacklist.token == token).first()
 
-        if blacklisted_token:
-            raise credentials_exception
+        # if blacklisted_token:
+        #     raise credentials_exception
         
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         # print(payload)
@@ -54,7 +54,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     credentials_exception  = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Could not validate credentials", headers={"WWW-Authenticate": "Berarer"})
 
     token = verify_access_token(token, credentials_exception, db)
-    user = db.query(models.Users).filter(models.Users.id == token.id).first()
+    user = db.query(models.User).filter(models.User.id == token.id).first()
     if not user:
         raise credentials_exception
     return user
