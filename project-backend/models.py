@@ -59,10 +59,10 @@ class BlogPost(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False, index=True)
     content = Column(Text, nullable=False)
-    slug = Column(String(255), unique=True, nullable=False, default="SLUG")
+    slug = Column(String(255), unique=True, nullable=False)
     published_at = Column(DateTime, default=datetime.utcnow)
     is_published = Column(Boolean, default=False)
-    author_id = Column(Integer, ForeignKey('users.id'), nullable=False, default=9)
+    author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     category_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
 
     author = relationship('User', back_populates='posts')
