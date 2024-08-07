@@ -1,5 +1,7 @@
 __pycache__/
 
+routers/__pycache__/
+
 /main/myenv/
 
 pyproject.toml

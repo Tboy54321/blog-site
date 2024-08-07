@@ -47,6 +47,7 @@ class BlogPostBase(BaseModel):
 
 # Schema for creating a blog post
 class BlogPostCreate(BlogPostBase):
+    # slug: str
     tags: Optional[List[str]] = []
 
 # Schema for updating a blog post
