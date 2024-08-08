@@ -55,6 +55,11 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     #     )
     # Handle this error : DETAIL:  Key (slug)=(undrstading-the-baics-f-rest-apis) already exists. repeated SLUG
     slug = generate_slugs(blog_post.title)
+    no_of_characters = sum(len(char) for char in blog_post.title)
+    
+    if no_of_characters >= 50:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Title should not be more than 50 characters")
+
     new_post = models.BlogPost(
         title=blog_post.title,
         content=blog_post.content,
@@ -135,4 +140,3 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     delete_query.delete(synchronize_session=False)
     db.commit()
     return (deleted_post)
-    
