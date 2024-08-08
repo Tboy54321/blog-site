@@ -23,13 +23,17 @@ def get_all_blogs(db: Session = Depends(get_db), current_user: int = Depends(oau
 @router.get("/posts/{id}")
 def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     blog = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
+    
 
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Blog with id {id} does not exist")
     
+    print(blog.tags)
+
     return blog
 
 
+# NOT YET WORKING
 @router.get("/getpost/{tag_name}")
 def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
@@ -52,10 +56,24 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     # Handle this error : DETAIL:  Key (slug)=(undrstading-the-baics-f-rest-apis) already exists. repeated SLUG
     slug = generate_slugs(blog_post.title)
     new_post = models.BlogPost(
-        **blog_post.dict(),
+        title=blog_post.title,
+        content=blog_post.content,
         author_id=current_user.id,
         slug = slug
     )
+
+    tags = []
+    for tag_name in blog_post.tags:
+        tag = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
+        if not tag:
+            tag = models.Tag(name=tag_name)
+            db.add(tag)
+            db.commit()
+            db.refresh(tag)
+        tags.append(tag)
+
+    new_post.tags = tags
+
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -74,14 +92,29 @@ def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
     
     update_data = updated_post.dict(exclude_unset=True)
-    tags = update_data.pop('tags', None)  # Remove tags from the dict if present
+
+    if 'tags' in update_data:
+        post.tags = []
+
+        new_tags = []
+        for tag_name in update_data['tags']:
+            tag = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
+            if not tag:
+                tag = models.Tag(name=tag_name)
+                db.add(tag)
+                db.commit()
+                db.refresh(tag)
+            new_tags.append(tag)
+
+        post.tags = new_tags
+        del update_data["tags"]
+
     old_post.update(update_data, synchronize_session=False)
     # Handle the tags update
-    # HANDLING AND LINKING TAGS TO THE BLOG POST
     
     db.commit()
-
-    return {"Updated Post": old_post.first()}
+    print(post.tags)
+    return {"Updated Post": post}
 
 
 @router.delete("/deletepost/{id}")
@@ -92,9 +125,14 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     if not deleted_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} was not found")
     
-    if not deleted_post.author_id != current_user.id:
+    if deleted_post.author_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
     
+
+    delete_associations = db.query(models.post_tag_association).filter(models.post_tag_association.c.post_id == id)
+    delete_associations.delete(synchronize_session=False)
+
     delete_query.delete(synchronize_session=False)
     db.commit()
     return (deleted_post)
+    

@@ -30,7 +30,8 @@ from datetime import datetime
 # #     password = Column(String, nullable=False)
 
 post_tag_association = Table(
-    'post_tag', Base.metadata,
+    'post_tag',
+    Base.metadata,
     Column('post_id', ForeignKey('posts.id'), primary_key=True),
     Column('tag_id', ForeignKey('tags.id'), primary_key=True)
 )
