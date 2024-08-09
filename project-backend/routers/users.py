@@ -91,6 +91,14 @@ def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database
 
 
 @router.delete("/delete-account")
-def delete_password(db: Session = Depends(database.get_db)):
-    pass
+def delete_password(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    delete_query = db.query(models.User).filter(models.User.id == current_user.id)
+    delete_user = delete_query.first()
+
+    if not delete_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
+
+    delete_query.delete(synchronize_session=False)
+    db.commit()
+    
 # Endpoint to handle searching of users
