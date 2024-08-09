@@ -38,6 +38,10 @@ class UserResponse(UserBase):
         orm_mode = True
 
 
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
 
 
 class BlogPostBase(BaseModel):

@@ -87,8 +87,8 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
 
 @router.put("/updatepost/{id}")
 def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    old_post = db.query(models.BlogPost).filter(models.BlogPost.id == id)
-    post = old_post.first()
+    post_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
+    post = post_query.first()
 
     if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with id: {id} was not found")
@@ -114,7 +114,7 @@ def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Dep
         post.tags = new_tags
         del update_data["tags"]
 
-    old_post.update(update_data, synchronize_session=False)
+    post_query.update(update_data, synchronize_session=False)
     # Handle the tags update
     
     db.commit()
@@ -140,3 +140,6 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
     delete_query.delete(synchronize_session=False)
     db.commit()
     return (deleted_post)
+
+
+# Endpoint to handle searching of posts based on title
