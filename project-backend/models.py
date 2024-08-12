@@ -32,8 +32,8 @@ from datetime import datetime
 post_tag_association = Table(
     'post_tag',
     Base.metadata,
-    Column('post_id', ForeignKey('posts.id'), primary_key=True),
-    Column('tag_id', ForeignKey('tags.id'), primary_key=True)
+    Column('post_id', ForeignKey('posts.id', ondelete='CASCADE'), primary_key=True),
+    Column('tag_id', ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
 )
 
 # User Model
@@ -63,8 +63,8 @@ class BlogPost(Base):
     slug = Column(String(255), unique=True, nullable=False)
     published_at = Column(DateTime, default=datetime.utcnow)
     is_published = Column(Boolean, default=False)
-    author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    category_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
+    author_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    category_id = Column(Integer, ForeignKey('categories.id', ondelete='CASCADE'), nullable=True)
 
     author = relationship('User', back_populates='posts')
     category = relationship('Category', back_populates='posts')
@@ -109,8 +109,25 @@ class Like(Base):
     __tablename__ = 'likes'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    post_id = Column(Integer, ForeignKey('posts.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
 
     user = relationship('User', back_populates='likes')
     post = relationship('BlogPost', back_populates='likes')
+
+
+class TokenBlacklist(Base):
+    __tablename__ = 'token_blacklist'
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, index=True, unique=True)
+    blacklisted_on = Column(DateTime, default=datetime.utcnow)
+
+
+class RefreshToken(Base):
+    __tablename__ = 'refresh_tokens'
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, nullable=False, unique=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime)

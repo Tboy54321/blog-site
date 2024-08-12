@@ -20,6 +20,25 @@ def get_all_blogs(db: Session = Depends(get_db), current_user: int = Depends(oau
     return all_blogs
 
 
+@router.get("/myposts")
+def get_all_my_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == current_user.id).all()
+    return all_my_blogs
+
+
+@router.get("/posts/{email}")
+def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
+
+    all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == user.id).all()
+    
+    return all_my_blogs
+
+
 @router.get("/posts/{id}")
 def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     blog = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
@@ -54,6 +73,7 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     #         detail="Title and content cannot be empty."
     #     )
     # Handle this error : DETAIL:  Key (slug)=(undrstading-the-baics-f-rest-apis) already exists. repeated SLUG
+    # HANDLING GLUG UNIQUENESS
     slug = generate_slugs(blog_post.title)
     no_of_characters = sum(len(char) for char in blog_post.title)
     
@@ -134,8 +154,8 @@ def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depe
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not Authorized")
     
 
-    delete_associations = db.query(models.post_tag_association).filter(models.post_tag_association.c.post_id == id)
-    delete_associations.delete(synchronize_session=False)
+    # delete_associations = db.query(models.post_tag_association).filter(models.post_tag_association.c.post_id == id)
+    # delete_associations.delete(synchronize_session=False)
 
     delete_query.delete(synchronize_session=False)
     db.commit()

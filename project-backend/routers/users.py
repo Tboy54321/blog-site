@@ -33,6 +33,7 @@ def get_users(db: Session = Depends(database.get_db)):
     all_users = db.query(models.User).all()
     return all_users
 
+
 @router.get("/getuser/{email}")
 def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == email).first()
@@ -43,6 +44,9 @@ def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_us
 
 @router.put("/update")
 def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    user = db.query(models.User).filter(models.User.email == current_user.email).first()
+    print(user)
+    print(current_user.id)
     if not updated_user.email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email is required")
     
@@ -86,7 +90,7 @@ def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with this email does not exist.")
     
-    token = oauth2.create_access_token()
+    token = oauth2.create_access_token(data= {"user_id": user.id})
     # Implemanetation of mail users link
 
 
@@ -94,11 +98,20 @@ def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database
 def delete_password(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     delete_query = db.query(models.User).filter(models.User.id == current_user.id)
     delete_user = delete_query.first()
+    
+    db.query(models.BlogPost).filter(models.BlogPost.author_id == delete_user.id).delete(synchronize_session=False)
+    db.commit()
+
+    # delete_associations = db.query(models.post_tag_association).filter(models.post_tag_association.c.post_id == id)
+    # delete_associations.delete(synchronize_session=False)
 
     if not delete_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
 
+    # db.query(models.User).filter(models.BlogPost.author_id == delete_user.id)
+
     delete_query.delete(synchronize_session=False)
     db.commit()
     
+    return {"message": "Deleted succesfully"}
 # Endpoint to handle searching of users
