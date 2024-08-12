@@ -51,7 +51,7 @@ class User(Base):
 
     posts = relationship('BlogPost', back_populates='author')
     comments = relationship('Comment', back_populates='author')
-    likes = relationship('Like', back_populates='user')
+    likes = relationship('Like', back_populates='user', cascade="all, delete")
 
 # BlogPost Model
 class BlogPost(Base):
@@ -70,7 +70,7 @@ class BlogPost(Base):
     category = relationship('Category', back_populates='posts')
     comments = relationship('Comment', back_populates='post')
     tags = relationship('Tag', secondary=post_tag_association, back_populates='posts')
-    likes = relationship('Like', back_populates='post')
+    likes = relationship('Like', back_populates='post', cascade="all, delete")
 
 # Category Model
 class Category(Base):
@@ -98,8 +98,8 @@ class Comment(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    post_id = Column(Integer, ForeignKey('posts.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
 
     author = relationship('User', back_populates='comments')
     post = relationship('BlogPost', back_populates='comments')
@@ -109,8 +109,8 @@ class Like(Base):
     __tablename__ = 'likes'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False, primary_key=True)
 
     user = relationship('User', back_populates='likes')
     post = relationship('BlogPost', back_populates='likes')

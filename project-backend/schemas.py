@@ -113,7 +113,8 @@ class CommentBase(BaseModel):
 
 # Schema for creating a comment
 class CommentCreate(CommentBase):
-    post_id: int
+    # post_id: int
+    pass
 
 # Schema for returning comment information
 class CommentResponse(CommentBase):
