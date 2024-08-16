@@ -139,3 +139,19 @@ class LikeResponse(LikeBase):
 
     class Config:
         orm_mode = True
+
+
+class NotificationBase(BaseModel):
+    message: str
+    is_read: bool = False
+
+class NotificationCreate(NotificationBase):
+    user_id: int
+    post_id: int
+
+class NotificationResponse(NotificationBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        orm_mode = True

@@ -23,6 +23,20 @@ def like_post(id: int, db: Session = Depends(get_db), current_user: int = Depend
     
     new_like = models.Like(user_id = current_user.id, post_id = id)
     db.add(new_like)
+
+    if current_user.id == post.author_id:
+        pass
+    else:
+        message = f"{current_user.email} liked your post"
+
+        new_notification = models.Notification(
+            user_id=post.author_id,
+            post_id=id,
+            message=message
+        )
+        db.add(new_notification)
+
+    # print(message)
     db.commit()
     # db.refresh(new_like)
     return {"Message": "Post liked"}

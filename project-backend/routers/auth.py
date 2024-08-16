@@ -5,7 +5,9 @@ from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from oauth2 import SECRET_KEY, ALGORITHM
 
-router = APIRouter(tags=['Authentication'])
+router = APIRouter(
+    tags=['Authentication']
+    )
 
 @router.post("/login")
 def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):

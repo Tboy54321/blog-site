@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 from database import get_db
 import re
 
-router = APIRouter(tags=["Blogs Page"])
+router = APIRouter(
+    tags=["Blogs Page"]
+)
 
 
 def generate_slugs(title: str):
@@ -20,13 +22,19 @@ def get_all_blogs(db: Session = Depends(get_db), current_user: int = Depends(oau
     return all_blogs
 
 
+@router.get("/posts")
+def search_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), search: str = ""):
+    all_blogs = db.query(models.BlogPost).filter(models.BlogPost.title.contains(search)).all()
+    return all_blogs
+
+
 @router.get("/myposts")
 def get_all_my_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == current_user.id).all()
     return all_my_blogs
 
 
-@router.get("/posts/{email}")
+@router.get("/allposts/{email}")
 def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
     user = db.query(models.User).filter(models.User.email == email).first()
@@ -35,6 +43,19 @@ def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
 
     all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == user.id).all()
+    
+    return all_my_blogs
+
+
+@router.get("/posts/{email}")
+def get_all_user_blogs_by_filter(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 5):
+    # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
+
+    all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == user.id).limit(limit).all()
     
     return all_my_blogs
 
@@ -67,7 +88,7 @@ def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_u
 
 @router.post("/createpost")
 def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    # HABDLE THIS ERROR: if not blog_post.title or not blog_post.content:
+    # HANDLE THIS ERROR: if not blog_post.title or not blog_post.content:
     #     raise HTTPException(
     #         status_code=status.HTTP_400_BAD_REQUEST,
     #         detail="Title and content cannot be empty."

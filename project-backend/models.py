@@ -52,6 +52,7 @@ class User(Base):
     posts = relationship('BlogPost', back_populates='author')
     comments = relationship('Comment', back_populates='author')
     likes = relationship('Like', back_populates='user', cascade="all, delete")
+    notifications = relationship('Notification', back_populates='user', cascade="all, delete")
 
 # BlogPost Model
 class BlogPost(Base):
@@ -71,6 +72,7 @@ class BlogPost(Base):
     comments = relationship('Comment', back_populates='post')
     tags = relationship('Tag', secondary=post_tag_association, back_populates='posts')
     likes = relationship('Like', back_populates='post', cascade="all, delete")
+    notifications = relationship('Notification', back_populates='post', cascade="all, delete")
 
 # Category Model
 class Category(Base):
@@ -108,7 +110,7 @@ class Comment(Base):
 class Like(Base):
     __tablename__ = 'likes'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, primary_key=True)
     post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False, primary_key=True)
 
@@ -131,3 +133,16 @@ class RefreshToken(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime)
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    post_id = Column(Integer, ForeignKey("posts.id"))
+    message = Column(String, nullable=False)
+    is_read = Column(Boolean, default=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="notifications")
+    post = relationship("BlogPost", back_populates="notifications")
