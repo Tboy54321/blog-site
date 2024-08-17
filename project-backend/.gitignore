@@ -1,9 +1,9 @@
-__pycache__/
-
-/routers/__pycache__/
-
-/main/myenv/
-
-pyproject.toml
-
 .env
+
+/app/__pycache__/
+
+/app/env/
+
+/app/routers/__pycache__/
+
+/alembic/env.py
