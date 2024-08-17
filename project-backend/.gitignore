@@ -7,3 +7,5 @@
 /app/routers/__pycache__/
 
 /alembic/env.py
+
+/alembic/versions/__pycache__/

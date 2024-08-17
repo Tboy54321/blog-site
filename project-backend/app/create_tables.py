@@ -16,5 +16,5 @@ def drop_tables():
     Base.metadata.drop_all(bind=engine)
 
 if __name__ == "__main__":
-    # drop_tables()
-    create_tables()
+    drop_tables()
+    # create_tables()

@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from routers import blogs, users, auth, likes, comments, notifications
 
+# models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 
