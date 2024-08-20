@@ -40,10 +40,10 @@ def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_us
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
-    return {"Mail Exist": user}
+    return user
 
 
-@router.put("/update", response_model=List[schemas.UserResponse])
+@router.put("/update", response_model=schemas.UserResponse)
 def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == current_user.email).first()
     print(user)
@@ -67,7 +67,7 @@ def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(
 
     db.commit()
     
-    return {"Updated User": user}
+    return user
     
 
 @router.put("/change-password")
