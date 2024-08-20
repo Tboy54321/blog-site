@@ -3,6 +3,7 @@ import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from database import get_db
 import re
+from typing import List
 
 router = APIRouter(
     tags=["Blogs Page"]
@@ -86,7 +87,7 @@ def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_u
     return posts
 
 
-@router.post("/createpost")
+@router.post("/createpost", response_model=schemas.BlogPostResponse)
 def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # HANDLE THIS ERROR: if not blog_post.title or not blog_post.content:
     #     raise HTTPException(
@@ -118,12 +119,13 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
             db.refresh(tag)
         tags.append(tag)
 
+
     new_post.tags = tags
 
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
-    return {"blog post": new_post}
+    return new_post
 
 
 @router.put("/updatepost/{id}")

@@ -11,6 +11,7 @@ class TokenData(BaseModel):
     id: Optional[int] = None
 
 
+
 # Base schema
 class UserBase(BaseModel):
     # username: str
@@ -37,60 +38,14 @@ class UserResponse(UserBase):
     class Config:
         orm_mode = True
 
+class UserNameResponse(BaseModel):
+    email: EmailStr
+
+
 
 class ChangePassword(BaseModel):
     old_password: str
     new_password: str
-
-
-
-class BlogPostBase(BaseModel):
-    title: str 
-    # constr(min_length=1, max_length=255)
-    content: str
-
-# Schema for creating a blog post
-class BlogPostCreate(BlogPostBase):
-    # slug: str
-    tags: Optional[List[str]] = []
-
-# Schema for updating a blog post
-class BlogPostUpdate(BlogPostBase):
-    is_published: Optional[bool] = False
-    category_id: Optional[int] = None
-    tags: Optional[List[str]] = []
-
-
-# Schema for returning blog post information
-class BlogPostResponse(BlogPostBase):
-    id: int
-    slug: str
-    published_at: Optional[datetime] = None
-    is_published: bool
-    author: UserResponse
-    category: Optional[str] = None
-    tags: List[str] = []
-    comments: List[str] = []
-
-    class Config:
-        orm_mode = True
-
-
-
-
-class CategoryBase(BaseModel):
-    name: str
-
-class CategoryCreate(CategoryBase):
-    description: Optional[str] = None
-
-class CategoryResponse(CategoryBase):
-    id: int
-    description: Optional[str] = None
-
-    class Config:
-        orm_mode = True
-
 
 
 
@@ -125,6 +80,53 @@ class CommentResponse(CommentBase):
     class Config:
         orm_mode = True
 
+
+
+class BlogPostBase(BaseModel):
+    title: str 
+    # constr(min_length=1, max_length=255)
+    content: str
+
+# Schema for creating a blog post
+class BlogPostCreate(BlogPostBase):
+    # slug: str
+    tags: Optional[List[str]] = []
+
+# Schema for updating a blog post
+class BlogPostUpdate(BlogPostBase):
+    is_published: Optional[bool] = False
+    category_id: Optional[int] = None
+    tags: Optional[List[str]] = []
+
+# Schema for returning blog post information
+class BlogPostResponse(BlogPostBase):
+    id: int
+    title: str
+    slug: str
+    published_at: Optional[datetime] = None
+    is_published: bool
+    category: Optional[str] = None
+    tags: List[TagResponse]
+    comments: List[CommentResponse]
+    author: UserNameResponse
+
+    class Config:
+        orm_mode = True
+
+
+
+class CategoryBase(BaseModel):
+    name: str
+
+class CategoryCreate(CategoryBase):
+    description: Optional[str] = None
+
+class CategoryResponse(CategoryBase):
+    id: int
+    description: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 
 class LikeBase(BaseModel):
