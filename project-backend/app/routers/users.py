@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 import database, models, schemas, utils
 from sqlalchemy.exc import IntegrityError
 import oauth2
+from typing import List
 
 router = APIRouter(
     # prefix="/user",
     tags=["Signing in new users"]
 )
 
-@router.post("/signup", status_code=status.HTTP_201_CREATED)
+@router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     hashed_password = utils.get_password_hash(user.password)
     user.password = hashed_password
@@ -28,13 +29,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 
 
 # ADMIN ROLE
-@router.get("/getallusers", status_code=status.HTTP_200_OK)
+@router.get("/getallusers", status_code=status.HTTP_200_OK, response_model=List[schemas.UserResponse])
 def get_users(db: Session = Depends(database.get_db)):
     all_users = db.query(models.User).all()
     return all_users
 
 
-@router.get("/getuser/{email}")
+@router.get("/getuser/{email}", response_model=schemas.UserResponse)
 def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
@@ -42,7 +43,7 @@ def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_us
     return {"Mail Exist": user}
 
 
-@router.put("/update")
+@router.put("/update", response_model=List[schemas.UserResponse])
 def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == current_user.email).first()
     print(user)
@@ -113,5 +114,5 @@ def delete_password(db: Session = Depends(database.get_db), current_user: int = 
     delete_query.delete(synchronize_session=False)
     db.commit()
     
-    return {"message": "Deleted succesfully"}
+    return {"message": "Account deleted succesfully"}
 # Endpoint to handle searching of users
