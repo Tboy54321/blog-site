@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, DateTime, Table
 from sqlalchemy.orm import relationship
-from database import Base
-# from .database import Base
+# from database import Base [UVICORN]
+from app.database import Base
 from datetime import datetime
 
 

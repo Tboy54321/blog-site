@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
-import database, models, utils, oauth2
+# import database, models, utils, oauth2 [UVICORN]
+import app.database as database, app.models as models, app.utils as utils, app.oauth2 as oauth2
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from oauth2 import SECRET_KEY, ALGORITHM
+# from oauth2 import SECRET_KEY, ALGORITHM [UVICORN]
+from app.oauth2 import SECRET_KEY, ALGORITHM
 
 router = APIRouter(
     tags=['Authentication']

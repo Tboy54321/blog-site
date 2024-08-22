@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
-import database, models, schemas, utils
+# import database, models, schemas, utils [UVICRON]
+import app.database as database, app.models as models, app.schemas as schemas, app.utils as utils
 from sqlalchemy.exc import IntegrityError
-import oauth2
+# import oauth2 [UVICOON]
+import app.oauth2 as oauth2
 from typing import List
 
 router = APIRouter(

@@ -9,3 +9,7 @@
 /alembic/env.py
 
 /alembic/versions/__pycache__/
+
+/app/tests/.pytest_cache
+
+/app/tests/__pycache__

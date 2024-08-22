@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
-import models, schemas, oauth2
+# import models, schemas, oauth2 [uvirocn]
+import app.models as models, app.schemas as schemas, app.oauth2 as oauth2
 from sqlalchemy.orm import Session
-from database import get_db
+# from database import get_db [UVICORN]
+from app.database import get_db
 from datetime import datetime, timedelta
 
 router = APIRouter(
