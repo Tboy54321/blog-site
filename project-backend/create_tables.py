@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base
-from config import settings
+from app.models import Base
+from app.config import settings
 
 # DATABASE_URL = "postgresql://postgres:password@localhost:5432/blog_database"
 DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
@@ -16,5 +16,5 @@ def drop_tables():
     Base.metadata.drop_all(bind=engine)
 
 if __name__ == "__main__":
-    drop_tables()
-    # create_tables()
+    # drop_tables()
+    create_tables()

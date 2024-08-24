@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 # from routers import blogs, users, auth, likes, comments, notifications [UVICORN]
 from app.routers import blogs, users, auth, likes, comments, notifications
+# import app.models as models
+# from app.database import engine
 
 # models.Base.metadata.create_all(bind=engine)
 
