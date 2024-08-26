@@ -16,10 +16,13 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
     user = db.query(models.User).filter(models.User.email == user_credentials.username).first()
 
     if not user:
-      raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid Credentials")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid Credentials")
+    
+    # Check If the user did not put his username
+    # Check if the username did not put his password
     
     if not utils.verify_password(user_credentials.password, user.password):
-      raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid Credentials")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Invalid Credentials")
     
     access_token = oauth2.create_access_token(data= {"user_id": user.id})
     refresh_token = oauth2.create_refresh_token(data={"user_id": user.id})
@@ -29,7 +32,7 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
             "token_type": "bearer"}
 
 
-@router.post("/logout")
+@router.post("/logout/", status_code=status.HTTP_200_OK)
 def logout(token: str = Depends(oauth2.oauth2_scheme), db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     blacklisted_token = models.TokenBlacklist(token=token)
     db.add(blacklisted_token)
