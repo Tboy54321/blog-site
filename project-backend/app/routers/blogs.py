@@ -19,25 +19,25 @@ def generate_slugs(title: str):
     return slug
 
 
-@router.get("/posts", response_model=List[schemas.BlogPostResponse])
+@router.get("/posts/", response_model=List[schemas.BlogPostResponse], status_code=status.HTTP_200_OK)
 def get_all_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     all_blogs = db.query(models.BlogPost).all()
     return all_blogs
 
 
-@router.get("/posts", response_model=List[schemas.BlogPostResponse])
+@router.get("/posts/", response_model=List[schemas.BlogPostResponse])
 def search_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), search: str = ""):
     all_blogs = db.query(models.BlogPost).filter(models.BlogPost.title.contains(search)).all()
     return all_blogs
 
 
-@router.get("/myposts", response_model=List[schemas.BlogPostResponse])
+@router.get("/myposts/", response_model=List[schemas.BlogPostResponse])
 def get_all_my_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == current_user.id).all()
     return all_my_blogs
 
 
-@router.get("/allposts/{email}", response_model=List[schemas.BlogPostResponse])
+@router.get("/allposts/{email}/", response_model=List[schemas.BlogPostResponse])
 def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
     user = db.query(models.User).filter(models.User.email == email).first()
@@ -50,7 +50,7 @@ def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: 
     return all_my_blogs
 
 
-@router.get("/posts/{email}", response_model=List[schemas.BlogPostResponse])
+@router.get("/posts/{email}/", response_model=List[schemas.BlogPostResponse])
 def get_all_user_blogs_by_filter(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 5):
     # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
     user = db.query(models.User).filter(models.User.email == email).first()
@@ -63,7 +63,7 @@ def get_all_user_blogs_by_filter(email: str, db: Session = Depends(get_db), curr
     return all_my_blogs
 
 
-@router.get("/one-post/{id}", response_model=schemas.BlogPostResponse)
+@router.get("/one-post/{id}/", response_model=schemas.BlogPostResponse)
 def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     blog = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
 
@@ -74,7 +74,7 @@ def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Dep
 
 
 # NOT YET WORKING
-@router.get("/getpost/{tag_name}", response_model=List[schemas.BlogPostResponse])
+@router.get("/getpost/{tag_name}/", response_model=List[schemas.BlogPostResponse])
 def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
 
     posts = db.query(models.BlogPost).join(models.BlogPost.tags).filter(models.Tag.name == tag_name).all()
@@ -86,7 +86,7 @@ def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_u
     return posts
 
 
-@router.post("/createpost", response_model=schemas.BlogPostResponse)
+@router.post("/createpost/", response_model=schemas.BlogPostResponse)
 def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     # HANDLE THIS ERROR: if not blog_post.title or not blog_post.content:
     #     raise HTTPException(
@@ -127,7 +127,7 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     return new_post
 
 
-@router.put("/updatepost/{id}", response_model=schemas.BlogPostResponse)
+@router.put("/updatepost/{id}/", response_model=schemas.BlogPostResponse)
 def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     post_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
     post = post_query.first()
@@ -164,7 +164,7 @@ def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Dep
     return post
 
 
-@router.delete("/deletepost/{id}")
+@router.delete("/deletepost/{id}/")
 def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     delete_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
     deleted_post = delete_query.first()

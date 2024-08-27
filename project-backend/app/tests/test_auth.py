@@ -30,7 +30,6 @@ def test_failed_login(client, test_user, email, password, status_code):
     # assert response.json().get('detail') == "Invalid Credentials"
 
 def test_logout(client, test_user):
-    test_login(client, test_user)
     response = client.post("/login/", data={"username": test_user['email'], "password": test_user['password']})
     login_res = schemas.Token(**response.json())
     headers = {"Authorization": f"Bearer {login_res.access_token}"}
