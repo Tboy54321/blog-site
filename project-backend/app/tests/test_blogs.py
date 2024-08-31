@@ -138,5 +138,19 @@ def test_wrong_post_id_update_post(authorized_client, test_user, test_posts):
     assert response.status_code == 404
     assert response.json()['detail'] == f"Post with id: {wrong_id} was not found"
 
-def delete_post(authorized_client, test_posts):
-    authorized_client.delete("")
+def test_delete_post(authorized_client, test_user, test_posts):
+    response = authorized_client.delete(f"/deletepost/{test_posts[0].id}/")
+
+    response.status_code == 200
+
+def test_unauthorized_delete_post(authorized_client, test_user, test_posts):
+    response = authorized_client.delete(f"/deletepost/{test_posts[3].id}/")
+
+    assert response.status_code == 401
+    assert response.json()['detail'] == "Not Authorized"
+
+def test_unauthenticated_delete_post(client, test_user, test_posts):
+    response = client.delete(f"/deletepost/{test_posts[0].id}/")
+
+    response.status_code == 401
+    assert response.json()['detail'] == "Not authenticated"

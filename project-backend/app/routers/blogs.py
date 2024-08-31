@@ -163,7 +163,7 @@ def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Dep
     return post
 
 
-@router.delete("/deletepost/{id}/")
+@router.delete("/deletepost/{id}/", status_code=status.HTTP_200_OK)
 def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     delete_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
     deleted_post = delete_query.first()
