@@ -64,11 +64,18 @@ def test_user(client):
     new_user['password'] = user_data['password']
     return new_user
 
+@pytest.fixture
+def test_user2(client):
+    user_data = {"email": "test3@gmail.com", "password": "password3"}
+    response = client.post("/signup/", json=user_data)
+    # assert response.status_code == 201
+    new_user = response.json()
+    new_user['password'] = user_data['password']
+    return new_user
 
 @pytest.fixture
 def token(test_user):
     return create_access_token({"user_id": test_user['id']})
-
 
 @pytest.fixture
 def authorized_client(client, token):
@@ -80,13 +87,12 @@ def authorized_client(client, token):
     return client
 
 @pytest.fixture
-def test_posts(session, test_user):
+def test_posts(session, test_user, test_user2):
     def generate_slugs(title: str):
         slug = title.lower()
         slug = slug.replace(" ", "-")
         slug = re.sub(r'[^a-z0-9-]', '', slug)
         return slug
-    
 
     post_data = [
         {
@@ -107,7 +113,7 @@ def test_posts(session, test_user):
         }, {
             "title": "4th title",
             "content": "4th content",
-            "author_id": test_user['id'],
+            "author_id": test_user2['id'],
             "slug": "4th-title"
         }
     ]

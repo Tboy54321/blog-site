@@ -94,7 +94,7 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
     #         detail="Title and content cannot be empty."
     #     )
     # Handle this error : DETAIL:  Key (slug)=(undrstading-the-baics-f-rest-apis) already exists. repeated SLUG
-    # HANDLING GLUG UNIQUENESS
+    # HANDLING SLUG UNIQUENESS
     slug = generate_slugs(blog_post.title)
     no_of_characters = sum(len(char) for char in blog_post.title)
     
@@ -117,7 +117,6 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
             db.commit()
             db.refresh(tag)
         tags.append(tag)
-
 
     new_post.tags = tags
 
