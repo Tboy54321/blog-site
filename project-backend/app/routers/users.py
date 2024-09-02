@@ -15,6 +15,19 @@ router = APIRouter(
 
 @router.post("/signup/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+    """
+    Endpoint to sign up a new user.
+
+    Args:
+        user (schemas.UserCreate): The user creation data including email and password.
+        db (Session): The database session (provided by FastAPI dependency injection).
+
+    Returns:
+        schemas.UserResponse: The created user object.
+
+    Raises:
+        HTTPException: If the user already exists.
+    """
     hashed_password = utils.get_password_hash(user.password)
     user.password = hashed_password
     new_user = models.User(**user.dict())
@@ -33,12 +46,35 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 # ADMIN ROLE
 @router.get("/getallusers/", status_code=status.HTTP_200_OK, response_model=List[schemas.UserResponse])
 def get_users(db: Session = Depends(database.get_db)):
+    """
+    Endpoint to retrieve all users. 
+
+    Args:
+        db (Session): The database session (provided by FastAPI dependency injection).
+
+    Returns:
+        List[schemas.UserResponse]: A list of all users.
+    """
     all_users = db.query(models.User).all()
     return all_users
 
 
 @router.get("/getuser/{email}/", response_model=schemas.UserResponse)
 def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve a user by their email.
+
+    Args:
+        email (EmailStr): The email of the user to retrieve.
+        db (Session): The database session (provided by FastAPI dependency injection).
+        current_user (int): The ID of the currently authenticated user (fetched via OAuth2).
+
+    Returns:
+        schemas.UserResponse: The user object.
+
+    Raises:
+        HTTPException: If the user does not exist.
+    """
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
@@ -47,6 +83,20 @@ def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_us
 
 @router.put("/update/", response_model=schemas.UserResponse)
 def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to update the profile information of the current user.
+
+    Args:
+        updated_user (schemas.UserUpdate): The updated user data.
+        db (Session): The database session (provided by FastAPI dependency injection).
+        current_user (int): The ID of the currently authenticated user (fetched via OAuth2).
+
+    Returns:
+        schemas.UserResponse: The updated user object.
+
+    Raises:
+        HTTPException: If the email is required or already taken, or if the user does not exist.
+    """
     user = db.query(models.User).filter(models.User.email == current_user.email).first()
     print(user)
     print(current_user.id)
@@ -74,6 +124,20 @@ def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(
 
 @router.put("/change-password/", status_code=status.HTTP_200_OK)
 def change_password(updated_password: schemas.ChangePassword, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to change the password of the current user.
+
+    Args:
+        updated_password (schemas.ChangePassword): The new password data including old and new passwords.
+        db (Session): The database session (provided by FastAPI dependency injection).
+        current_user (int): The ID of the currently authenticated user (fetched via OAuth2).
+
+    Returns:
+        dict: A success message indicating the password was changed.
+
+    Raises:
+        HTTPException: If the old password does not match or if the user is not found.
+    """
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
 
     if not utils.verify_password(updated_password.old_password, user.password):
@@ -89,6 +153,19 @@ def change_password(updated_password: schemas.ChangePassword, db: Session = Depe
 
 @router.put("/reset-password/")
 def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database.get_db)):
+    """
+    Endpoint to initiate a password reset process.
+
+    Args:
+        reset_data (schemas.UserBase): Data including the user's email.
+        db (Session): The database session (provided by FastAPI dependency injection).
+
+    Returns:
+        dict: A success message or a token for password reset.
+
+    Raises:
+        HTTPException: If the user with the given email does not exist.
+    """
     user = db.query(models.User).filter(models.User.email == reset_data.email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with this email does not exist.")
@@ -99,6 +176,19 @@ def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database
 
 @router.delete("/delete-account/")
 def delete_account(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to delete the current user's account.
+
+    Args:
+        db (Session): The database session (provided by FastAPI dependency injection).
+        current_user (int): The ID of the currently authenticated user (fetched via OAuth2).
+
+    Returns:
+        dict: A success message indicating the account was deleted.
+
+    Raises:
+        HTTPException: If the user is not found.
+    """
     delete_query = db.query(models.User).filter(models.User.id == current_user.id)
     delete_user = delete_query.first()
     

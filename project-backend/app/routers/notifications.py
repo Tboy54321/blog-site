@@ -11,5 +11,16 @@ router = APIRouter(
 
 @router.get("/notifications")
 def get_notifications(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve all notifications for the current user.
+
+    Args:
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+
+    Returns:
+        List[schemas.NotificationResponse]: A list of notifications for the current user, ordered by timestamp in descending order.
+
+    """
     notifications = db.query(models.Notification).filter(models.Notification.user_id == current_user.id).order_by(models.Notification.timestamp.desc()).all()
     return notifications
