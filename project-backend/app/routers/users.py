@@ -31,13 +31,13 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 
 
 # ADMIN ROLE
-@router.get("/getallusers", status_code=status.HTTP_200_OK, response_model=List[schemas.UserResponse])
+@router.get("/getallusers/", status_code=status.HTTP_200_OK, response_model=List[schemas.UserResponse])
 def get_users(db: Session = Depends(database.get_db)):
     all_users = db.query(models.User).all()
     return all_users
 
 
-@router.get("/getuser/{email}", response_model=schemas.UserResponse)
+@router.get("/getuser/{email}/", response_model=schemas.UserResponse)
 def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
@@ -45,7 +45,7 @@ def get_user(email: EmailStr, db: Session = Depends(database.get_db), current_us
     return user
 
 
-@router.put("/update", response_model=schemas.UserResponse)
+@router.put("/update/", response_model=schemas.UserResponse)
 def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.email == current_user.email).first()
     print(user)
@@ -72,7 +72,7 @@ def update_profile_info(updated_user: schemas.UserUpdate, db: Session = Depends(
     return user
     
 
-@router.put("/change-password")
+@router.put("/change-password/", status_code=status.HTTP_200_OK)
 def change_password(updated_password: schemas.ChangePassword, db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
 
@@ -87,7 +87,7 @@ def change_password(updated_password: schemas.ChangePassword, db: Session = Depe
 
     return {"message": "Password changed successfully"}
 
-@router.put("/reset-password")
+@router.put("/reset-password/")
 def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.email == reset_data.email).first()
     if not user:
@@ -97,8 +97,8 @@ def reset_password(reset_data = schemas.UserBase, db: Session = Depends(database
     # Implemanetation of mail users link
 
 
-@router.delete("/delete-account")
-def delete_password(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
+@router.delete("/delete-account/")
+def delete_account(db: Session = Depends(database.get_db), current_user: int = Depends(oauth2.get_current_user)):
     delete_query = db.query(models.User).filter(models.User.id == current_user.id)
     delete_user = delete_query.first()
     
