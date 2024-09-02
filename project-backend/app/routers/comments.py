@@ -12,6 +12,21 @@ router = APIRouter(
 
 @router.post("/posts/{id}/comment")
 def comment_post(comment: schemas.CommentCreate, id: int, current_user: int = Depends(oauth2.get_current_user), db: Session = Depends(get_db)):
+    """
+    Endpoint to add a comment to a blog post.
+
+    Args:
+        comment (schemas.CommentCreate): The content of the comment to be added.
+        id (int): The ID of the blog post to which the comment is being added.
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+
+    Returns:
+        dict: A success message indicating the comment was added successfully.
+
+    Raises:
+        HTTPException: If the blog post with the specified ID does not exist.
+    """
     user = db.query(models.User).filter(models.User.id == current_user.id).first()
     post = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
     if not post:
@@ -42,12 +57,39 @@ def comment_post(comment: schemas.CommentCreate, id: int, current_user: int = De
 
 @router.get("/posts/{id}/comments")
 def get_comments(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve all comments for a specific blog post.
+
+    Args:
+        id (int): The ID of the blog post for which comments are being fetched.
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+
+    Returns:
+        dict: A list of comments associated with the specified blog post.
+    """
     all_comments = db.query(models.Comment).filter(models.Comment.post_id == id).all()
     return {"comments": all_comments}
 
 
 @router.put("/posts/{id}/comments/{comment_id}")
 def update_comment(updated_comment: schemas.CommentCreate, id: int, comment_id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to update a specific comment within a blog post.
+
+    Args:
+        updated_comment (schemas.CommentCreate): The new content for the comment.
+        id (int): The ID of the blog post containing the comment.
+        comment_id (int): The ID of the comment to be updated.
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+
+    Returns:
+        schemas.Comment: The updated comment.
+
+    Raises:
+        HTTPException: If the comment is not found, or if the time to update the comment has exceeded 10 minutes.
+    """
     comment = db.query(models.Comment).filter(models.Comment.post_id == id, models.Comment.id == comment_id, models.Comment.author_id == current_user.id).first()
 
     if not comment:
@@ -65,6 +107,21 @@ def update_comment(updated_comment: schemas.CommentCreate, id: int, comment_id: 
 
 @router.delete("/posts/{comment_id}/{id}/delete")
 def delete_comment(comment_id: int, id: int, current_user: int = Depends(oauth2.get_current_user), db: Session = Depends(get_db)):
+    """
+    Endpoint to delete a specific comment from a blog post.
+
+    Args:
+        comment_id (int): The ID of the comment to be deleted.
+        id (int): The ID of the blog post containing the comment.
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+
+    Returns:
+        dict: A success message indicating the comment was deleted.
+
+    Raises:
+        HTTPException: If the comment does not exist or if the user is not authorized to delete the comment.
+    """
     existing_comment = db.query(models.Comment).filter(models.Comment.post_id == id, models.Comment.id == comment_id, models.Comment.author_id == current_user.id).first()
     if not existing_comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment does not exist")

@@ -13,6 +13,10 @@ router = APIRouter(
 
 
 def generate_slugs(title: str):
+    """
+    Function to generate URL-friendly slugs from blog post titles.
+    Replaces spaces with hyphens and removes special characters.
+    """
     slug = title.lower()
     slug = slug.replace(" ", "-")
     slug = re.sub(r'[^a-z0-9-]', '', slug)
@@ -21,25 +25,36 @@ def generate_slugs(title: str):
 
 @router.get("/posts/", response_model=List[schemas.BlogPostResponse], status_code=status.HTTP_200_OK)
 def get_all_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve all blog posts.
+    """
     all_blogs = db.query(models.BlogPost).all()
     return all_blogs
 
 
 @router.get("/posts/", response_model=List[schemas.BlogPostResponse])
 def search_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), search: str = ""):
+    """
+    Endpoint to search blog posts by title.
+    """
     all_blogs = db.query(models.BlogPost).filter(models.BlogPost.title.contains(search)).all()
     return all_blogs
 
 
 @router.get("/myposts/", response_model=List[schemas.BlogPostResponse])
 def get_all_my_blogs(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve all blog posts by the current user.
+    """
     all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == current_user.id).all()
     return all_my_blogs
 
 
 @router.get("/allposts/{email}/", response_model=List[schemas.BlogPostResponse])
 def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
+    """
+    Endpoint to retrieve all blog posts by a specific user based on their email.
+    """
     user = db.query(models.User).filter(models.User.email == email).first()
 
     if not user:
@@ -52,7 +67,9 @@ def get_all_user_blogs(email: str, db: Session = Depends(get_db), current_user: 
 
 @router.get("/posts/{email}/", response_model=List[schemas.BlogPostResponse])
 def get_all_user_blogs_by_filter(email: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 5):
-    # all_my_blogs = db.query(models.BlogPost).filter(models.BlogPost.author_id == id).all()
+    """
+    Endpoint to retrieve all blog posts by a specific user with a limit on the number of posts returned.
+    """
     user = db.query(models.User).filter(models.User.email == email).first()
 
     if not user:
@@ -65,6 +82,9 @@ def get_all_user_blogs_by_filter(email: str, db: Session = Depends(get_db), curr
 
 @router.get("/one-post/{id}/", response_model=schemas.BlogPostResponse)
 def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to retrieve a single blog post by its ID.
+    """
     blog = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
 
     if not blog:
@@ -76,7 +96,9 @@ def get_one_post(id: int, db: Session = Depends(get_db), current_user: int = Dep
 # NOT YET WORKING
 @router.get("/getpost/{tag_name}/", response_model=List[schemas.BlogPostResponse])
 def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-
+    """
+    Endpoint to retrieve blog posts by a specific tag. Currently not working.
+    """
     posts = db.query(models.BlogPost).join(models.BlogPost.tags).filter(models.Tag.name == tag_name).all()
     print(posts)
 
@@ -88,6 +110,9 @@ def get_post_by_category(tag_name: str, db: Session = Depends(get_db), current_u
 
 @router.post("/createpost/", response_model=schemas.BlogPostResponse)
 def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to create a new blog post.
+    """
     # HANDLE THIS ERROR: if not blog_post.title or not blog_post.content:
     #     raise HTTPException(
     #         status_code=status.HTTP_400_BAD_REQUEST,
@@ -128,6 +153,9 @@ def create_post(blog_post: schemas.BlogPostCreate, db: Session = Depends(get_db)
 
 @router.put("/updatepost/{id}/", response_model=schemas.BlogPostResponse)
 def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to update an existing blog post by its ID.
+    """
     post_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
     post = post_query.first()
 
@@ -165,6 +193,9 @@ def update_post(updated_post: schemas.BlogPostUpdate, id: int, db: Session = Dep
 
 @router.delete("/deletepost/{id}/", status_code=status.HTTP_200_OK)
 def delete_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to delete a blog post by its ID.
+    """
     delete_query = db.query(models.BlogPost).filter(models.BlogPost.id == id)
     deleted_post = delete_query.first()
 

@@ -12,6 +12,22 @@ router = APIRouter(
 
 @router.post("/posts/{id}/like")
 def like_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to like a blog post.
+
+    Args:
+        id (int): The ID of the blog post to be liked.
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+
+    Returns:
+        dict: A success message indicating the post was liked.
+
+    Raises:
+        HTTPException: 
+            - 404: If the post with the specified ID does not exist.
+            - 429: If the current user has already liked the post.
+    """
     post = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
 
     if not post:
@@ -46,6 +62,22 @@ def like_post(id: int, db: Session = Depends(get_db), current_user: int = Depend
 
 @router.delete("/posts/{id}/unlike")
 def unlike_post(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    """
+    Endpoint to unlike a blog post.
+
+    Args:
+        id (int): The ID of the blog post to be unliked.
+        db (Session): The database session (automatically provided by FastAPI dependency injection).
+        current_user (int): The ID of the current user (automatically fetched from OAuth2 dependency).
+
+    Returns:
+        dict: A success message indicating the post was unliked.
+
+    Raises:
+        HTTPException: 
+            - 404: If the post with the specified ID does not exist.
+            - 400: If the current user has not liked the post.
+    """
     post = db.query(models.BlogPost).filter(models.BlogPost.id == id).first()
     
     if not post:
