@@ -1,6 +1,5 @@
 # Blog API with User Interaction and Notifications
 
----
 This project provides a Blog API where users can create, update, like, and comment on blog posts. It includes user management features such as sign-up, login, profile update, password change, and account deletion. Additionally, the project has notification functionality to alert users about events like when their posts are liked.
 
 ## Features
