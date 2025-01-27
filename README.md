@@ -1,4 +1,4 @@
-# Blog API with User Interaction and Notifications
+<h1 align="center">Blog API with User Interaction and Notifications</h1>
 
 This project provides a Blog API where users can create, update, like, and comment on blog posts. It includes user management features such as sign-up, login, profile update, password change, and account deletion. Additionally, the project has notification functionality to alert users about events like when their posts are liked.
 
@@ -31,3 +31,10 @@ This project provides a Blog API where users can create, update, like, and comme
 - **OAuth2 with JWT** for secure authentication.
 - **PostgreSQL** for database storage.
 - **Postman** for testing and documenting API endpoints.
+
+## Setup Instructions
+
+1. **Clone the Repository**  
+   First, clone the repository to your local machine:
+   ```bash
+   git clone <your-repository-url>
